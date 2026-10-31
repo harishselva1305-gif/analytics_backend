@@ -30,7 +30,7 @@ Local development uses `DEBUG=1` and a development-only fallback key. Production
 
 ## Deploy to Vercel
 
-1. Import the repository into Vercel and set **Root Directory** to the project folder containing `manage.py`, `requirements.txt`, and `vercel.json` (`MediSafe-AI` in this repository).
+1. Import the `analytics_backend` repository into Vercel and set **Root Directory** to the repository root (`./`), where `manage.py`, `requirements.txt`, and `vercel.json` are located.
 2. Keep the Django framework preset. The root `vercel.json` selects Django, and `backend/backend.py` exposes `wsgi.application` for Vercel's Django runtime.
 3. In **Project Settings → Environment Variables**, add `DJANGO_SECRET_KEY` with a newly generated secret for Production and Preview. Generate one locally with:
 
@@ -88,7 +88,7 @@ Tests cover registration and login errors, input validation, report creation, ow
 ## Project layout
 
 ```text
-MediSafe-AI/
+analytics_backend/
 ├── frontend/
 │   └── templates/
 │       ├── index.html
