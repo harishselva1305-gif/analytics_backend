@@ -258,7 +258,11 @@
       .chart-box { height: 220px; }
     }
     @media (max-width: 440px) {
-      .header-actions .btn { min-height: 38px; padding: 0 12px; font-size: 12px; }
+      .site-header .wrap { gap: 8px; }
+      .site-header .brand { gap: 7px; font-size: 16px; white-space: nowrap; }
+      .site-header .brand-mark { flex: 0 0 32px; width: 32px; height: 32px; }
+      .header-actions { flex: 0 0 auto; gap: 6px; }
+      .header-actions .btn { min-height: 36px; padding: 0 9px; font-size: 12px; white-space: nowrap; }
       .hero h1 { font-size: 38px; }
       .trust-row { flex-wrap: wrap; gap: 10px 14px; }
       .kpi-grid { gap: 9px; }
@@ -267,6 +271,13 @@
       .form-grid { grid-template-columns: 1fr; }
       .span-2 { grid-column: auto; }
       .user-chip > span:not(.avatar) { display: none; }
+    }
+    @media (max-width: 360px) {
+      .site-header .wrap { width: calc(100% - 20px); gap: 4px; }
+      .site-header .brand { gap: 5px; font-size: 14px; }
+      .site-header .brand-mark { flex-basis: 28px; width: 28px; height: 28px; border-radius: 9px; }
+      .header-actions { gap: 4px; }
+      .header-actions .btn { min-height: 34px; padding: 0 6px; font-size: 11px; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *:before, *:after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
