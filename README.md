@@ -43,6 +43,17 @@ Local development uses `DEBUG=1` and a development-only fallback key. Production
 
 The separate `analytics_frontend` Vercel project can proxy `/api/`, `/login/`, `/customer/`, `/admin/`, and `/django-admin/` to this Django deployment using external rewrites in its root `vercel.json`. Django trusts `https://analyticsfrontend.vercel.app` for CSRF by default. Add any frontend preview or custom origins to `DJANGO_CSRF_TRUSTED_ORIGINS` as a comma-separated list before using unsafe API requests from those origins.
 
+## Deploy the backend to Render
+
+Create a **Web Service** for `analytics_backend` on branch `main`, using the repository root as the Root Directory. Use these commands:
+
+```text
+Build:  pip install -r requirements.txt && python manage.py migrate
+Start:  gunicorn wsgi:application --bind 0.0.0.0:$PORT
+```
+
+Add `DJANGO_SECRET_KEY` using Render's Generate control and set `DJANGO_DEBUG` to `0`. Render's `RENDER_EXTERNAL_HOSTNAME` is added to `ALLOWED_HOSTS` automatically. The free service uses an ephemeral filesystem, so SQLite data is not durable across restarts or deploys; use a managed PostgreSQL database for persistent data.
+
 Vercel's local SQLite file is not persistent storage. Use a managed database and shared cache for data that must survive deployments or serve multiple instances. Do not use real patient information.
 
 ## API

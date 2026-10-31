@@ -20,12 +20,14 @@ INDEX_FILE = Path(FRONTEND_DIR, "templates", "index.html")
 logger = logging.getLogger(__name__)
 VERCEL_ENV = os.getenv("VERCEL_ENV", "").strip().lower()
 IS_VERCEL = os.getenv("VERCEL", "").strip().lower() in {"1", "true", "yes"} or bool(VERCEL_ENV)
-DEBUG = os.getenv("DJANGO_DEBUG", "0" if IS_VERCEL else "1").strip().lower() in {
+IS_RENDER = os.getenv("RENDER", "").strip().lower() in {"1", "true", "yes"}
+IS_HOSTED = IS_VERCEL or IS_RENDER
+DEBUG = os.getenv("DJANGO_DEBUG", "0" if IS_HOSTED else "1").strip().lower() in {
     "1",
     "true",
     "yes",
 }
-if VERCEL_ENV == "production":
+if VERCEL_ENV == "production" or IS_RENDER:
     DEBUG = False
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "development-only-key-set-DJANGO_SECRET_KEY")
 
@@ -53,9 +55,13 @@ def _add_allowed_host(value: str) -> None:
 for configured_host in os.getenv("DJANGO_ALLOWED_HOSTS", "").split(","):
     _add_allowed_host(configured_host)
 
-for vercel_host in (os.getenv("VERCEL_URL"), os.getenv("VERCEL_PROJECT_PRODUCTION_URL")):
-    if vercel_host:
-        _add_allowed_host(vercel_host)
+for deployment_host in (
+    os.getenv("VERCEL_URL"),
+    os.getenv("VERCEL_PROJECT_PRODUCTION_URL"),
+    os.getenv("RENDER_EXTERNAL_HOSTNAME"),
+):
+    if deployment_host:
+        _add_allowed_host(deployment_host)
 
 CSRF_TRUSTED_ORIGINS = ["https://analyticsfrontend.vercel.app"]
 for trusted_origin in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(","):
