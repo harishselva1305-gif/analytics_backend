@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102747">
+  <title>Sign in · MediSafe AI</title>
+  <style>
+    :root { color-scheme: light; font-family: Inter, "Segoe UI", sans-serif; color: #102747; background: #f4f7fb; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; padding: 24px; }
+    .card { width: min(100%, 420px); padding: 34px; border: 1px solid #e3eaf1; border-radius: 18px; background: white; box-shadow: 0 18px 55px #10274714; }
+    .brand { margin-bottom: 28px; font-size: 20px; font-weight: 800; letter-spacing: -.04em; }
+    .brand span { color: #0c9b91; }
+    .eyebrow { margin: 0 0 8px; color: #0c8d85; font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    h1 { margin: 0 0 8px; font-size: 27px; }
+    .intro { margin: 0 0 24px; color: #66768a; line-height: 1.55; }
+    label { display: block; margin: 16px 0 7px; font-size: 13px; font-weight: 700; }
+    input { width: 100%; min-height: 45px; padding: 10px 12px; border: 1px solid #dce4ed; border-radius: 9px; font: inherit; }
+    input:focus { outline: 3px solid #0c9b9126; border-color: #0c9b91; }
+    button { width: 100%; min-height: 46px; margin-top: 21px; border: 0; border-radius: 9px; color: white; background: #102747; font: inherit; font-weight: 750; cursor: pointer; }
+    button:disabled { opacity: .65; cursor: wait; }
+    .notice { min-height: 20px; margin-top: 14px; color: #a62838; font-size: 13px; line-height: 1.45; }
+    .links { display: flex; justify-content: space-between; gap: 10px; margin-top: 22px; font-size: 13px; }
+    a { color: #087f79; font-weight: 650; }
+    .privacy { margin-top: 23px; color: #78879a; font-size: 11px; line-height: 1.5; }
+  </style>
+</head>
+<body data-next="{{ next }}">
+  <main class="card">
+    <div class="brand">MediSafe<span>AI</span></div>
+    <p class="eyebrow">Secure account access</p>
+    <h1 id="login-heading">Sign in to your workspace</h1>
+    <p class="intro">Sign in with your account. Customers go to their personal workspace; staff accounts go to the admin dashboard.</p>
+    <form id="login-form">
+      <label for="username">Username</label>
+      <input id="username" name="username" autocomplete="username" maxlength="150" required>
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+      <button id="submit" type="submit">Sign in</button>
+      <div class="notice" id="notice" role="alert" aria-live="polite"></div>
+    </form>
+    <div class="links"><a href="/">Home</a></div>
+    <p class="privacy"><a href="/?register=1">Create a customer account</a>. Admin access is restricted to staff accounts.</p>
+  </main>
+  <script>
+    (() => {
+      const form = document.querySelector("#login-form");
+      const button = document.querySelector("#submit");
+      const notice = document.querySelector("#notice");
+
+      async function csrfToken() {
+        const response = await fetch("/api/csrf/", { credentials: "same-origin" });
+        const data = await response.json();
+        if (!response.ok || !data.csrfToken) throw new Error("Could not start a secure session. Refresh and try again.");
+        return data.csrfToken;
+      }
+
+      form.addEventListener("submit", async event => {
+        event.preventDefault();
+        button.disabled = true;
+        button.textContent = "Signing in…";
+        notice.textContent = "";
+        try {
+          const csrf = await csrfToken();
+          const response = await fetch("/api/login/", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json", "X-CSRFToken": csrf },
+            body: JSON.stringify({
+              username: document.querySelector("#username").value.trim(),
+              password: document.querySelector("#password").value,
+              role: "auto",
+              next: document.body.dataset.next
+            })
+          });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || "Sign in failed.");
+          window.location.assign(data.dashboard_url);
+        } catch (error) {
+          notice.textContent = error.message;
+          button.disabled = false;
+          button.textContent = "Sign in";
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
